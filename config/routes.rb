@@ -12,6 +12,9 @@ Rails.application.routes.draw do
       
       # Route to get user progress
       get '/users/:user_id/progress', to: 'user_programs#progress'
+
+      # get full data related to a specific prorgam
+      get 'programs/:id/data', to: 'programs#program_full_data'
     end
   end
 end
