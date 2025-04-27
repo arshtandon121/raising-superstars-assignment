@@ -1,63 +1,17 @@
 Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
-      get 'user_programs/index'
+      resources :programs, only: [:index, :show]
+      resources :activities, only: [:index, :show]
+      resources :daily_plans, only: [:index, :show]
+      resources :user_activities, only: [:create, :update]
+      resources :user_programs, only: [:index, :create]
+      
+      # Additional route to get daily plan for specific day
+      get '/programs/:program_id/day/:day_number', to: 'daily_plans#show_by_day'
+      
+      # Route to get user progress
+      get '/users/:user_id/progress', to: 'user_programs#progress'
     end
   end
-
-  namespace :api do
-    namespace :v1 do
-      get 'user_programs/create'
-    end
-  end
-
-  namespace :api do
-    namespace :v1 do
-      get 'user_activities/create'
-    end
-  end
-
-  namespace :api do
-    namespace :v1 do
-      get 'user_activities/update'
-    end
-  end
-
-  namespace :api do
-    namespace :v1 do
-      get 'daily_plans/index'
-    end
-  end
-
-  namespace :api do
-    namespace :v1 do
-      get 'daily_plans/show'
-    end
-  end
-
-  namespace :api do
-    namespace :v1 do
-      get 'activities/index'
-    end
-  end
-
-  namespace :api do
-    namespace :v1 do
-      get 'activities/show'
-    end
-  end
-
-  namespace :api do
-    namespace :v1 do
-      get 'programs/index'
-    end
-  end
-
-  namespace :api do
-    namespace :v1 do
-      get 'programs/show'
-    end
-  end
-
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 end
