@@ -21,34 +21,31 @@ module Api
       end
       
       def progress
-        user_id = params[:user_id]
-        user_activities = UserActivity.where(user_id: user_id)
-        user_programs = UserProgram.where(user_id: user_id)
-        
-        progress_data = user_programs.map do |user_program|
+        user = User.includes(user_programs: { program: { daily_plans: :daily_plan_activities } }, user_activities: :daily_plan).find(params[:user_id])
+      
+        progress_data = user.user_programs.map do |user_program|
           program = user_program.program
           daily_plans = program.daily_plans
-          
-          completed_activities = user_activities
-            .where(daily_plan_id: daily_plans.pluck(:id), completed: true)
-            .count
-            
-          total_activities = DailyPlanActivity
-            .where(daily_plan_id: daily_plans.pluck(:id))
-            .count
-            
+      
+          daily_plan_ids = daily_plans.map(&:id)
+      
+          completed_count = user.user_activities.where(daily_plan_id: daily_plan_ids, completed: true).count
+      
+          total_activities = daily_plans.sum { |dp| dp.daily_plan_activities.size }
+      
           {
             program_id: program.id,
             program_name: program.name,
             start_date: user_program.start_date,
-            completed_activities: completed_activities,
+            completed_activities: completed_count,
             total_activities: total_activities,
-            progress_percentage: total_activities > 0 ? (completed_activities.to_f / total_activities * 100).round(2) : 0
+            progress_percentage: total_activities.positive? ? ((completed_count.to_f / total_activities) * 100).round(2) : 0
           }
         end
-        
+      
         render json: { progress: progress_data }
       end
+      
       
       private
       
